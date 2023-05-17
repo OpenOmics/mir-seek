@@ -1,13 +1,13 @@
 # Project Information
-site_name: baseline
+site_name: mir-seek
 site_author: Skyler Kuhn
 site_description: >-
-  An awesome OpenOmics baseline pipeline
+  An awesome OpenOmics microRNA-sequencing pipeline
 
 # Repository
-repo_name: OpenOmics/baseline
-repo_url: https://github.com/OpenOmics/baseline
-edit_uri: https://github.com/OpenOmics/baseline/edit/main/docs/
+repo_name: OpenOmics/mir-seek
+repo_url: https://github.com/OpenOmics/mir-seek
+edit_uri: https://github.com/OpenOmics/mir-seek/edit/main/docs/
 
 # Extra
 extra_css:
@@ -98,10 +98,10 @@ markdown_extensions:
 nav:
   - About: index.md
   - Commands: 
-    - baseline run: usage/run.md
-    - baseline unlock: usage/unlock.md
-    - baseline install: usage/install.md
-    - baseline cache: usage/cache.md
+    - mir-seek run: usage/run.md
+    - mir-seek unlock: usage/unlock.md
+    - mir-seek install: usage/install.md
+    - mir-seek cache: usage/cache.md
   - FAQ:
     - General Questions: faq/questions.md
   - License: license.md
