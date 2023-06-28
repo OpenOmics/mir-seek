@@ -20,18 +20,32 @@ configfile: 'config.json'                      # Generated from user input and c
 workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
 genome   = config['options']['genome']         # Reference genome of a set of samples
+samples  = config['samples']                   # List containing basename of samples
 
 # Analysis options
 min_read_length = config['options']['min_read_length']  # Min length of a trimmed read (discarded if less)
 max_read_length = config['options']['max_read_length']  # Max length of a trimmed read (cropped if greater)
 
+# Read in resource information,
+# containing information about 
+# threads, mem, walltimes, etc.
+# TODO: Add handler for when the
+# mode is set to local.
+with open(join(workpath, 'config', 'cluster.json')) as fh:
+    cluster = json.load(fh)
 
 # Final ouput files of the pipeline
 rule all:
     input:
-        []
+        # Adpapter trimming rule,
+        # @imported from `rule fastp` in rules/trim.smk
+        expand(
+            join(workpath, "trim", "{name}_trimmed.fastq.gz"), 
+            name=samples
+        ),
 
 
 # Import rules 
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
+include: join("rules", "trim.smk")
