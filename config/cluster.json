@@ -1,8 +1,32 @@
 {
     "__default__": {
         "threads": "4",
-        "mem": "8g",
-        "partition": "norm",
+        "mem": "16g",
+        "time": "0-04:00:00"
+    },
+    "fastp": {
+        "threads": "8",
+        "mem": "24g",
+        "time": "0-12:00:00"
+    },
+    "seqkit_fq2fa": {
+        "threads": "4",
+        "mem": "16g",
+        "time": "0-06:00:00"
+    },
+    "mirdeep2_mapper": {
+        "threads": "8",
+        "mem": "64g",
+        "time": "1-12:00:00"
+    },
+    "mirdeep2_run": {
+        "threads": "8",
+        "mem": "72g",
+        "time": "1-18:00:00"
+    },
+    "merge_results": {
+        "threads": "4",
+        "mem": "16g",
         "time": "0-04:00:00"
     }
 }
