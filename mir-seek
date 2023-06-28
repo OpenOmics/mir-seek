@@ -392,8 +392,8 @@ def parsed_arguments(name, description):
           module load singularity snakemake
 
           # Step 2A.) Dry-run the pipeline
-          ./{0} run --input .tests/*.R1.fastq.gz \\
-                         --output /data/$USER/output \\
+          ./{0} run --input .tests/*.fastq.gz \\
+                         --output test_01 \\
                          --genome hg38 \\
                          --mode slurm \\
                          --dry-run
@@ -402,8 +402,8 @@ def parsed_arguments(name, description):
           # The slurm mode will submit jobs to 
           # the cluster. It is recommended running 
           # the pipeline in this mode.
-          ./{0} run --input .tests/*.R1.fastq.gz \\
-                         --output /data/$USER/output \\
+          ./{0} run --input .tests/*.fastq.gz \\
+                         --output test_01 \\
                          --genome hg38 \\
                          --mode slurm
 
