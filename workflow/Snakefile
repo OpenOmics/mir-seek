@@ -15,6 +15,16 @@ from scripts.common import (
     str_bool
 )
 
+# Global workflow variables
+configfile: 'config.json'                      # Generated from user input and config/*.json
+workpath = config['project']['workpath']       # Pipeline's output directory
+tmpdir   = config['options']['tmp_dir']        # Temporary directory
+genome   = config['options']['genome']         # Reference genome of a set of samples
+
+# Analysis options
+min_read_length = config['options']['min_read_length']  # Min length of a trimmed read (discarded if less)
+max_read_length = config['options']['max_read_length']  # Max length of a trimmed read (cropped if greater)
+
 
 # Final ouput files of the pipeline
 rule all:
