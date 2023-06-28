@@ -244,24 +244,27 @@ def parsed_arguments(name, description):
                 [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \\
                 [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
+                [--min-read-length MIN_READ_LENGTH] \\
+                [--max-read-length MAX_READ_LENGTH] \\
                 --input INPUT [INPUT ...] \\
-                --output OUTPUT
+                --output OUTPUT \\
+                --genome {{hg38,mm10}}
 
         Optional arguments are shown in square brackets above.
 
         {3}{4}Description:{5}
-          To run the ...long pipeline name with your data raw data, please
-        provide a space seperated list of FastQ (globbing is supported) and an output 
-        directory to store results.
+          To run the mir-seek pipeline with your data raw data, please provide a space 
+        seperated list of FastQ (globbing is supported), an output directory to store 
+        the results, and a reference genome for alignment and annotation.
 
         {3}{4}Required arguments:{5}
           --input INPUT [INPUT ...]
                                 Input FastQ file(s) to process. The pipeline does NOT
-                                support single-end data. FastQ files for one or more  
-                                samples can be provided. Multiple input FastQ files
-                                should be seperated by a space. Globbing for multiple
-                                file is also supported.
-                                  Example: --input .tests/*.R?.fastq.gz
+                                support paired-end data. FastQ files for one or more  
+                                single-end samples can be provided. Multiple input 
+                                FastQ files should be seperated by a space. Globbing
+                                for multiple files is also supported.
+                                  Example: --input .tests/*.R1.fastq.gz
           --output OUTPUT
                                 Path to an output directory. This location is where
                                 the pipeline will create all of its output files, also
@@ -269,9 +272,41 @@ def parsed_arguments(name, description):
                                 provided working directory has not been initialized,
                                 it will be created automatically.
                                   Example: --output /data/$USER/output
+          --genome {{hg38,mm10}}       
+                                Reference genome. This option defines the reference
+                                genome of the samples. {2} does comes bundled with
+                                prebuilt reference files for human (hg38) and mouse
+                                (mm10) samples. Select one of the following options:
+                                    • hg38
+                                    • mm10
+                                  Example: --genome hg38
 
         {3}{4}Analysis options:{5}
-          ...coming soon!
+          --min-read-length MIN_READ_LENGTH
+                                Minimum read length. After trimming adapters, reads 
+                                shorter than this length will be discarded. ENCODE
+                                discards reads shorter than 15 bp.
+                                  Default: 16
+                                  Example: --min-read-length 16
+          --max-read-length MAX_READ_LENGTH
+                                Maximum read length. After trimming adapters, reads
+                                that exceed this length will be trimmed again from 
+                                their 3'-end to this exact length. This option may 
+                                result in the recovery of additional aligned reads,
+                                as miRDeep2's aligner only allows for  1 mismatch.
+                                This means if a trimmed read's length is 26 bps and
+                                it perfectly aligns to a 24 bp micro-RNA, then it
+                                will remain unaligned (2 mismatches); however, if 
+                                this option were set to 25, then it would not be 
+                                discarded. If you do not want to cropped any of the 
+                                reads, you can set this options value to a higher 
+                                number, like 40. If you want to maximize the number
+                                of aligned reads at the cost of accuracy/precision, 
+                                then you can set this option to a lower number, like
+                                18. Please take care before overriding the default 
+                                value to this option.
+                                  Default: 27
+                                  Example: --max-read-length 27
 
         {3}{4}Orchestration options:{5}
           --mode {{slurm,local}}  
@@ -357,8 +392,9 @@ def parsed_arguments(name, description):
           module load singularity snakemake
 
           # Step 2A.) Dry-run the pipeline
-          ./{0} run --input .tests/*.R?.fastq.gz \\
+          ./{0} run --input .tests/*.R1.fastq.gz \\
                          --output /data/$USER/output \\
+                         --genome hg38 \\
                          --mode slurm \\
                          --dry-run
 
@@ -366,8 +402,9 @@ def parsed_arguments(name, description):
           # The slurm mode will submit jobs to 
           # the cluster. It is recommended running 
           # the pipeline in this mode.
-          ./{0} run --input .tests/*.R?.fastq.gz \\
+          ./{0} run --input .tests/*.R1.fastq.gz \\
                          --output /data/$USER/output \\
+                         --genome hg38 \\
                          --mode slurm
 
         {2}{3}Version:{4}
@@ -411,9 +448,35 @@ def parsed_arguments(name, description):
         action='help', 
         help=argparse.SUPPRESS
     )
+
+    # Reference genome
+    subparser_run.add_argument(
+        '--genome',
+        required = True,
+        type = str,
+        choices = ['hg38', 'mm10'],
+        help = argparse.SUPPRESS
+    )
     
     # Analysis options
-    # ... add here
+    # Min trimmed read length
+    subparser_run.add_argument(
+        '--min-read-length',
+        type = int,
+        required = False,
+        default = 16,
+        help = argparse.SUPPRESS
+    )
+
+    # Max trimmed read length
+    # before additional cropping
+    subparser_run.add_argument(
+        '--max-read-length',
+        type = int,
+        required = False,
+        default = 27,
+        help = argparse.SUPPRESS
+    )
 
     # Orchestration Options
     # Execution Method, run locally 
