@@ -12,7 +12,8 @@ from utils import (git_commit_hash,
     fatal,
     which,
     exists,
-    err)
+    err
+)
 
 from . import version as __version__
 
@@ -565,15 +566,6 @@ def get_nends(ifiles):
                 open an issue on Github.
                 """.format(missing_mates, sys.argv[0])
             )
-    elif not bam_files:
-        # Provided only single-end data
-        # not supported or recommended
-        raise TypeError("""\n\tFatal: Single-end data detected.
-            {} does not support single-end data. Calling variants from single-end
-            data is not recommended either. If you feel like this functionality should 
-            exist, feel free to open an issue on Github.
-            """.format(sys.argv[0])
-        )
 
     return nends_status
 
