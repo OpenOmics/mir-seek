@@ -7,7 +7,8 @@ rule mirdeep2_mapper:
     @Input:
         Cleaned FASTA file of Reads (scatter)
     @Output:
-        Reads mapped to the reference genome
+        Reads mapped to the reference genome (ARF file),
+        FASTA file of processed reads 
     """
     input:
         reads_fa  = join(workpath, "trim", "{sample}_trimmed_cleaned.fa"),
