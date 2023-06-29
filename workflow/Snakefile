@@ -15,6 +15,7 @@ from scripts.common import (
     str_bool
 )
 
+
 # Global workflow variables
 configfile: 'config.json'                      # Generated from user input and config/*.json
 workpath = config['project']['workpath']       # Pipeline's output directory
@@ -40,8 +41,14 @@ rule all:
         # Adpapter trimming rule,
         # @imported from `rule fastp` in rules/trim.smk
         expand(
-            join(workpath, "trim", "{name}_trimmed.fastq.gz"), 
-            name=samples
+            join(workpath, "trim", "{sample}_trimmed.fastq.gz"), 
+            sample=samples
+        ),
+        # Convert trimmed FastQ to FASTA,
+        # @imported from `rule seqkit_fq2fa` in rules/trim.smk
+        expand(
+            join(workpath,"trim", "{sample}_trimmed_cleaned.fa"),
+            sample=samples
         ),
 
 
