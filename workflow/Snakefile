@@ -50,9 +50,16 @@ rule all:
             join(workpath,"trim", "{sample}_trimmed_cleaned.fa"),
             sample=samples
         ),
+        # Map reads to the reference genome,
+        # @imported from `rule mirdeep2_mapper` in rules/align.smk
+        expand(
+            join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
+            sample=samples
+        ),
 
 
 # Import rules 
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
 include: join("rules", "trim.smk")
+include: join("rules", "align.smk")
