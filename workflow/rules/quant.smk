@@ -19,11 +19,11 @@ rule mirdeep2_run:
         report    = join(workpath, "mirdeep2", "{sample}_mirdeep2.log")
     params:
         rname = "mirdeep2",
-        fasta   = config['references'][genome]['fasta'],
+        fasta   = config['references'][genome]['genome'],
         mature  = config['references'][genome]['mature'],
         hairpin = config['references'][genome]['hairpin'],
         species = config['references'][genome]['species'],
-        tmpdir = join(worthpath, "mirdeep2", "run", "{sample}"),
+        tmpdir = join(workpath, "mirdeep2", "run", "{sample}"),
     envmodules: config['tools']['bowtie'],
     shell: """
     # Setups temporary directory for
@@ -53,9 +53,9 @@ rule mirdeep2_run:
     # Link expression results from 
     # miRDeep2 timestamp directory
     exp=$(
-        find "${{tmp}}"/expression_analyses/ \\
+        find "${{tmp}}/expression_analyses/" \\
             -type f \\
-            -name "miRNA_expressed.csv" \\
+            -iname "miRNA_expressed.csv" \\
             -print \\
             -quit
     )
