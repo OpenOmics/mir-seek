@@ -54,10 +54,9 @@ rule seqkit_fq2fa:
     threads: int(allocated("threads", "seqkit_fq2fa", cluster)),
     shell: """
     # Covert FastQ to FASTA format
-    seqkit fq2fa \\
+    seqkit fq2fa --threads {threads} \\
         {input.trim_fq} \\
-        -o {output.raw_fa} \\
-        --threads {threads}
+        -o {output.raw_fa} 
     
     # Clean sequence identifiers 
     # to replace spaces, tabs, and 
