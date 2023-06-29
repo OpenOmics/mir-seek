@@ -1,7 +1,9 @@
 # Rules related to trimming and pre-procesing
 rule fastp:
     """
-    Data-processing step to adapter trimming and read filtering. 
+    Data-processing step to adapter trimming and read filtering.
+    For more information, check out its github repository:
+    https://github.com/OpenGene/fastp
     @Input:
         Raw FastQ file (scatter)
     @Output:
@@ -37,7 +39,8 @@ rule seqkit_fq2fa:
     """Data processing step to convert trimmed FastQ file to FASTA format.
     miRDeep2 is very particular about the format of the input FASTA files.
     As so, they need to be cleaned of any white-space, tab, an asterick
-    characters.
+    characters. For more information, check out its github repository:
+    https://github.com/shenwei356/seqkit
     @Input:
         Trimmed FastQ file (scatter)
     @Output:
