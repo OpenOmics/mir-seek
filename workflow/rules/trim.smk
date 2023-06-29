@@ -3,7 +3,7 @@ rule fastp:
     """
     Data-processing step to adapter trimming and read filtering. 
     @Input:
-        Raw FastQ files (scatter)
+        Raw FastQ file (scatter)
     @Output:
         Trimmed FastQ file and reports
     """
@@ -15,7 +15,7 @@ rule fastp:
         json_report = join(workpath,"trim", "{sample}_fastp_report.json"),
     params:
         rname = "trim",
-        adapters = config['references']['adapters']
+        adapters = config['references'][genome]['adapters'],
         min_len = min_read_length,
         max_len = max_read_length,
     envmodules: config['tools']['fastp'],
@@ -30,4 +30,40 @@ rule fastp:
         --adapter_fasta {params.adapters} \\
         -l {params.min_len} \\
         --max_len1 {params.max_len}
+    """
+
+
+rule seqkit_fq2fa:
+    """Data processing step to convert trimmed FastQ file to FASTA format.
+    miRDeep2 is very particular about the format of the input FASTA files.
+    As so, they need to be cleaned of any white-space, tab, an asterick
+    characters.
+    @Input:
+        Trimmed FastQ file (scatter)
+    @Output:
+        Cleaned FASTA file of Reads 
+    """
+    input:
+        trim_fq  = join(workpath,"trim", "{sample}_trimmed.fastq.gz")
+    output:
+        raw_fa   = join(workpath,"trim", "{sample}_trimmed.fa"),
+        clean_fa = join(workpath,"trim", "{sample}_trimmed_cleaned.fa"),
+    params:
+        rname = "fq2fa",
+    envmodules: config['tools']['seqkit'],
+    threads: int(allocated("threads", "seqkit_fq2fa", cluster)),
+    shell: """
+    # Covert FastQ to FASTA format
+    seqkit fq2fa \\
+        {input.trim_fq} \\
+        -o {output.raw_fa} \\
+        --threads {threads}
+    
+    # Clean sequence identifiers 
+    # to replace spaces, tabs, and 
+    # asterisks with underscores
+    sed '/^>/ s/\\s/_/g' {output.raw_fa} \\
+        | sed '/^>/ s/\\t/_/g' \\
+        | sed '/^>/ s/*/_/g' \\
+    > {output.clean_fa}
     """
