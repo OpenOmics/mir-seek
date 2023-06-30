@@ -68,6 +68,9 @@ rule all:
             join(workpath, "mirdeep2", "counts", "{sample}_mature_miRNA_expression.tsv"),
             sample=samples
         ),
+        # Create a mature miRNA counts matrix,
+        # @imported from `rule merge_results` in rules/quant.smk
+        join(workpath, "mirdeep2", "counts", "miRDeep2_mature_miRNA_counts.tsv"),
 
 
 # Import rules 
