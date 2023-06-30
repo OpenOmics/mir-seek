@@ -14,17 +14,18 @@ rule mirdeep2_run:
         arf       = join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
         collapsed = join(workpath, "mirdeep2", "mapper", "{sample}_collapsed.fa"),
     output:
-        mirna     = join(workpath, "mirdeep2", "{sample}_miRNA_expressed.tsv"),
+        mirna     = join(workpath, "mirdeep2", "counts", "{sample}_miRNA_expressed.tsv"),
     log: 
         report    = join(workpath, "mirdeep2", "{sample}_mirdeep2.log")
     params:
-        rname = "mirdeep2",
+        rname   = "mirdeep2",
         fasta   = config['references'][genome]['genome'],
         mature  = config['references'][genome]['mature'],
         hairpin = config['references'][genome]['hairpin'],
         species = config['references'][genome]['species'],
-        tmpdir = join(workpath, "mirdeep2", "run", "{sample}"),
+        tmpdir  = join(workpath, "mirdeep2", "run", "{sample}"),
     envmodules: config['tools']['bowtie'],
+    threads: int(allocated("threads", "mirdeep2_run", cluster)),
     shell: """
     # Setups temporary directory for
     # intermediate files, miRDeep2
@@ -60,4 +61,42 @@ rule mirdeep2_run:
             -quit
     )
     ln -sf "${{exp}}" {output}
+    """
+
+
+rule mature_expression:
+    """
+    Data-processing step to calculate avergae expression across the same mature miRNA.
+    The relationship between mature to precursor miRNA is 1:many. This step averages the
+    expression of multiple precursor miRNA pointing to the same mature miRNA to find
+    average mature miRNA expression.
+    @Input:
+        Known and novel miRNA expression (scatter)
+    @Ouput:
+        Average mature miRNA expression
+    """
+    input:
+        mirna   = join(workpath, "mirdeep2", "counts", "{sample}_miRNA_expressed.tsv"),
+    output:
+        avg_exp = join(workpath, "mirdeep2", "counts", "{sample}_mature_miRNA_expression.tsv"),
+    params:
+        rname = "matrexp",
+    threads: int(allocated("threads", "mature_expression", cluster)),
+    shell: """
+    # Removes comment character from 
+    # header and calculates average 
+    # mature miRNA expression
+    head -1 {input.mirna} \\
+        | sed '1 s/^#//g' \\
+        | cut -f1,2 \\    
+    > {output.avg_exp}
+    # Cut on prefix of miRBase identifer
+    # to get mature miRNA identifers for 
+    # aggregation/averaging. These identifers
+    # more compatible with downstream tools.
+    tail -n+2 {input.mirna} \\
+        | cut -f1,2 \\
+        | awk -F '\\t' -v OFS='\\t' '{{split($1,a,"MIMA"); print a[1], $NF}}' \\
+        | awk -F '\\t' -v OFS='\\t' '{{seen[$1]+=$2; count[$1]++}} END {{for (x in seen) print x, seen[x]/count[x]}}' \\
+    >> {output.avg_exp}
     """
