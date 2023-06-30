@@ -24,9 +24,14 @@
         "mem": "72g",
         "time": "1-18:00:00"
     },
+    "mature_expression": {
+        "threads": "4",
+        "mem": "16g",
+        "time": "0-02:00:00"
+    },
     "merge_results": {
         "threads": "4",
         "mem": "16g",
-        "time": "0-04:00:00"
+        "time": "0-03:00:00"
     }
 }
