@@ -100,3 +100,32 @@ rule mature_expression:
         | awk -F '\\t' -v OFS='\\t' '{{seen[$1]+=$2; count[$1]++}} END {{for (x in seen) print x, seen[x]/count[x]}}' \\
     >> {output.avg_exp}
     """
+
+
+rule merge_results:
+    """
+    Data-processing step to aggreagte per-sample mature miRNA 
+    counts into a counts matrix.
+    @Input:
+        Average mature miRNA expression files (gather)
+    @Output:
+        Average mature miRNA counts matrix
+    """
+    input:
+        counts = expand(join(workpath, "mirdeep2", "counts", "{sample}_mature_miRNA_expression.tsv"), sample=samples),
+    output:
+        matrix = join(workpath, "mirdeep2", "counts", "miRDeep2_mature_miRNA_counts.tsv"),
+    params:
+        rname   = "mirmatrix",
+        script  = join("workflow", "scripts", "create_matrix.py"),
+    threads: int(allocated("threads", "merge_results", cluster))
+    shell: """
+    # Create counts matrix of mature miRNAs
+    {params.script} \\
+        --input {input.counts} \\
+        --output {output.matrix} \\
+        --join-on miRNA \\
+        --extract read_count \\
+        --clean-suffix '_mature_miRNA_expression.tsv' \\
+        --nan-values 0.0
+    """
