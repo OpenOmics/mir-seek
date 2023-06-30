@@ -4,16 +4,16 @@
             "adapters":      "/data/OpenOmics/references/mir-seek/hg38/known_adapters.fa",
             "bowtie1_index": "/data/OpenOmics/references/mir-seek/hg38/hg38",
             "genome":        "/data/OpenOmics/references/mir-seek/hg38/hg38_basic.fa", 
-            "mature":        "/data/OpenOmics/references/mir-seek/hg38/hsa_mature.fa",
-            "hairpin":       "/data/OpenOmics/references/mir-seek/hg38/hsa_hairpin.fa",
+            "mature":        "/data/OpenOmics/references/mir-seek/hg38/hsa_mature_mirbase_v22.fa",
+            "hairpin":       "/data/OpenOmics/references/mir-seek/hg38/hsa_hairpin_mirbase_v22.fa",
             "species":       "Human"
         },
         "mm10": {
             "adapters":      "/data/OpenOmics/references/mir-seek/mm10/known_adapters.fa",
             "bowtie1_index": "/data/OpenOmics/references/mir-seek/mm10/mm10",
             "genome":        "/data/OpenOmics/references/mir-seek/mm10/mm10_basic.fa", 
-            "mature":        "/data/OpenOmics/references/mir-seek/mm10/mmu_mature.fa",
-            "hairpin":       "/data/OpenOmics/references/mir-seek/mm10/mmu_hairpin.fa",
+            "mature":        "/data/OpenOmics/references/mir-seek/mm10/mmu_mature_mirbase_v22.fa",
+            "hairpin":       "/data/OpenOmics/references/mir-seek/mm10/mmu_hairpin_mirbase_v22.fa",
             "species":       "Mouse"
         }
     }
