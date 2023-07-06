@@ -1,0 +1,32 @@
+# Order that modules should appear in report. Try to list in order of analysis,
+# eg. FastQC is usually the first step, so should be last in this list
+# USAGE: multiqc -f -c multiqc_config.yaml --interactive  -d ../  -n multiqc_report.html
+
+module_order:
+# Pre-alignment QC
+    - 'fastqc':
+        name: 'FastQC'
+        info: 'This section of the report shows FastQC results before and after adapter trimming.'
+        path_filters:
+            - '*_fastqc.zip' 
+    - 'fastp'
+    - 'cutadapt'
+    - 'trimmomatic'
+    - 'kraken'
+    - 'fastq_screen'
+# Alignment tool stats
+    - 'bowtie1'
+    - 'bowtie2'
+    - 'salmon'
+    - 'kallisto'
+    - 'star'
+    - 'tophat'
+# Post-alignment analysis results
+    - 'preseq'
+    - 'qualimap'
+    - 'rseqc'
+    - 'rsem'
+    - 'picard'
+    - 'samblaster'
+    - 'samtools'
+    - 'bamtools'
