@@ -71,11 +71,26 @@ rule all:
         # Create a mature miRNA counts matrix,
         # @imported from `rule merge_results` in rules/quant.smk
         join(workpath, "mirdeep2", "counts", "miRDeep2_mature_miRNA_counts.tsv"),
+        # Quality-control step to assess sequencing 
+        # quality of raw and trimmed FastQ files,
+        # @imported from `rule fastqc_*` in rules/qc.smk
+        expand(
+            join(workpath, "fastqc", "{sample}.R1_fastqc.zip"),
+            sample=samples
+        ),
+        expand(
+            join(workpath, "fastqc", "{sample}_trimmed_fastqc.zip"),
+            sample=samples
+        ),
+        # Aggregated quality-control report,
+        # @imported from `rule multiqc` in rules/qc.smk
+        join(workpath, "reports", "multiqc_report.html"),
 
 
-# Import rules 
+# Import rules
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
 include: join("rules", "trim.smk")
 include: join("rules", "align.smk")
 include: join("rules", "quant.smk")
+include: join("rules", "qc.smk")
