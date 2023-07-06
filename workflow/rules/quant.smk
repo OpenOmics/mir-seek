@@ -25,6 +25,7 @@ rule mirdeep2_run:
         species = config['references'][genome]['species'],
         tmpdir  = join(workpath, "mirdeep2", "run", "{sample}"),
     envmodules: config['tools']['bowtie'],
+    container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mirdeep2_run", cluster)),
     shell: """
     # Setups temporary directory for
@@ -81,6 +82,7 @@ rule mature_expression:
         avg_exp = join(workpath, "mirdeep2", "counts", "{sample}_mature_miRNA_expression.tsv"),
     params:
         rname = "matrexp",
+    container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mature_expression", cluster)),
     shell: """
     # Removes comment character from 
@@ -118,7 +120,8 @@ rule merge_results:
     params:
         rname   = "mirmatrix",
         script  = join("workflow", "scripts", "create_matrix.py"),
-    threads: int(allocated("threads", "merge_results", cluster))
+    container: config['images']['mir-seek'],
+    threads: int(allocated("threads", "merge_results", cluster)),
     shell: """
     # Create counts matrix of mature miRNAs
     {params.script} \\

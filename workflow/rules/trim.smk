@@ -21,6 +21,7 @@ rule fastp:
         min_len = min_read_length,
         max_len = max_read_length,
     envmodules: config['tools']['fastp'],
+    container: config['images']['mir-seek'],
     threads: int(allocated("threads", "fastp", cluster)),
     shell: """
     fastp \\
@@ -54,6 +55,7 @@ rule seqkit_fq2fa:
     params:
         rname = "fq2fa",
     envmodules: config['tools']['seqkit'],
+    container: config['images']['mir-seek'],
     threads: int(allocated("threads", "seqkit_fq2fa", cluster)),
     shell: """
     # Covert FastQ to FASTA format

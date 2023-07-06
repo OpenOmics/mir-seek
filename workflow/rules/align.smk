@@ -22,6 +22,7 @@ rule mirdeep2_mapper:
         min_len = min_read_length,
         bw_index = config['references'][genome]['bowtie1_index'],
     envmodules: config['tools']['bowtie'],
+    container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mirdeep2_mapper", cluster)),
     shell: """
     # Aligns reads to the reference 

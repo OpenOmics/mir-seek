@@ -1,4 +1,5 @@
 {
     "images": {
+        "mir-seek": "docker://skchronicles/mir-seek:v0.1.0"
     }
 }
