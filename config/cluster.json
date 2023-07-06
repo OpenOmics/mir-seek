@@ -33,5 +33,20 @@
         "threads": "4",
         "mem": "16g",
         "time": "0-03:00:00"
+    },
+    "fastqc_raw": {
+        "threads": "4",
+        "mem": "16g",
+        "time": "0-04:00:00"
+    },
+    "fastqc_trim": {
+        "threads": "4",
+        "mem": "16g",
+        "time": "0-04:00:00"
+    },
+    "multiqc": {
+        "threads": "4",
+        "mem": "16g",
+        "time": "0-08:00:00"
     }
 }
