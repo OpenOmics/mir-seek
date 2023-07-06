@@ -177,6 +177,8 @@ RUN mkdir -p /opt2/mirdeep2/0.1.3-c6440e2/ \
     && cd /opt2/mirdeep2/0.1.3-c6440e2/ \
     && perl install.pl \
     && touch /opt2/mirdeep2/0.1.3-c6440e2/install_successful
+ENV PATH="${PATH}:/opt2/mirdeep2/0.1.3-c6440e2/bin"
+WORKDIR /opt2
 
 
 ################ POST #################
