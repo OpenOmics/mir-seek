@@ -285,9 +285,9 @@ def parsed_arguments(name, description):
           --min-read-length MIN_READ_LENGTH
                                 Minimum read length. After trimming adapters, reads 
                                 shorter than this length will be discarded. ENCODE
-                                discards reads shorter than 15 bp.
-                                  Default: 16
-                                  Example: --min-read-length 16
+                                discards reads shorter than 16 bp.
+                                  Default: 17
+                                  Example: --min-read-length 17
           --max-read-length MAX_READ_LENGTH
                                 Maximum read length. After trimming adapters, reads
                                 that exceed this length will be trimmed again from 
@@ -464,7 +464,7 @@ def parsed_arguments(name, description):
         '--min-read-length',
         type = int,
         required = False,
-        default = 16,
+        default = 17,
         help = argparse.SUPPRESS
     )
 
