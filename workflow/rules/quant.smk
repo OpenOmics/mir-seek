@@ -90,7 +90,7 @@ rule mature_expression:
     # mature miRNA expression
     head -1 {input.mirna} \\
         | sed '1 s/^#//g' \\
-        | cut -f1,2 \\    
+        | cut -f1,2 \\
     > {output.avg_exp}
     # Cut on prefix of miRBase identifer
     # to get mature miRNA identifers for 
