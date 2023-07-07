@@ -74,6 +74,7 @@ rule multiqc:
         expand(join(workpath, "fastqc", "{sample}.R1_fastqc.zip"), sample=samples),
         expand(join(workpath, "fastqc", "{sample}_trimmed_fastqc.zip"), sample=samples),
         expand(join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"), sample=samples),
+        expand(join(workpath, "mirdeep2", "mapper", "{sample}", "{sample}.bowtie.log"), sample=samples),
     output:
         html = join(workpath, "reports", "multiqc_report.html"),
     params:
