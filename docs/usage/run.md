@@ -5,24 +5,26 @@ The `mir-seek` executable is composed of several inter-related sub commands. Ple
 
 This part of the documentation describes options and concepts for <code>mir-seek <b>run</b></code> sub command in more detail. With minimal configuration, the **`run`** sub command enables you to start running mir-seek pipeline. 
 
-Setting up the mir-seek pipeline is fast and easy! In its most basic form, <code>mir-seek <b>run</b></code> only has *two required inputs*.
+Setting up the mir-seek pipeline is fast and easy! In its most basic form, <code>mir-seek <b>run</b></code> only has *three required inputs*.
 
 ## 2. Synopsis
 ```text
 $ mir-seek run [--help] \
-      [--mode {slurm,local}] [--job-name JOB_NAME] [--batch-id BATCH_ID] \
-      [--tmp-dir TMP_DIR] [--silent] [--sif-cache SIF_CACHE] \ 
-      [--singularity-cache SINGULARITY_CACHE] \
-      [--dry-run] [--threads THREADS] \
+      [--dry-run] [--job-name JOB_NAME] [--mode {slurm,local}] \
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
+      [--min-read-length MIN_READ_LENGTH] \
+      [--max-read-length MAX_READ_LENGTH] \
       --input INPUT [INPUT ...] \
-      --output OUTPUT
+      --output OUTPUT \
+      --genome {hg38,mm10}
 ```
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument and an output directory to store results via `--output` argument.
+A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a reference genome for alignment and annotation via `--genome` argument.
 
-Use you can always use the `-h` option for information on a specific command. 
+Use you can always use the `-h` option for information on a specific sub command. 
 
 ### 2.1 Required arguments
 
@@ -45,11 +47,37 @@ Each of the following arguments are required. Failure to provide a required argu
 > 
 > ***Example:*** `--output /data/$USER/mir-seek_out`
 
+---  
+  `--genome {hg38,mm10}`
+> **Reference genome.**   
+> *type: string*
+>   
+> This option defines the reference genome of the samples. mir-seek does comes bundled with pre-built reference files from GENCODE and miRBase (v22) for human and mouse samples. Please select from one of the following options: `hg38`, `mm10`. Please note that `hg38` is a human reference genome, while `mm10` is a reference genomes available for mouse.
+> ***Example:*** `Example: --genome hg38`
+
 ### 2.2 Analysis options
 
 Each of the following arguments are optional, and do not need to be provided. 
 
-...add non-required analysis options 
+
+  `--min-read-length MIN_READ_LENGTH`   
+> **Minimum read length.**  
+> *type: int*  
+> *default: 17*
+> 
+> After trimming adapters, reads shorter than this length will be discarded. ENCODE discards reads shorter than 16 bp; however, miRDeep2 enforces a minimum read-length of 17 bp. If you feel 17 bp is too permissive, setting this option's value to `18` is also a good alternative. 
+> 
+> ***Example:*** `---min-read-length 17`
+
+---  
+  `--max-read-length MIN_READ_LENGTH`   
+> **Maximum read length.**  
+> *type: int*  
+> *default: 27*
+> 
+> After trimming adapters, reads that exceed this length will be trimmed again from their 3'-end to this exact length. This option may result in the recovery of additional aligned reads, as miRDeep2's aligner only allows for  1 mismatch. This means if a trimmed read's length is 26 bps and it perfectly aligns to a 24 bp micro-RNA, then it will remain unaligned (2 mismatches); however, if this option were set to 25, then it would not be discarded. If you do not want to cropped any of the  reads, you can set this options value to a higher  number, like 999. If you want to maximize the number of aligned reads at the cost of accuracy/precision, then you can set this option to a lower number, like 25. Please take care before overriding the default  value to this option. The maximum sequence length of mature miRNAs in miRBase (v22) for hsa/human is 28, while the maximum sequence length of hairpin miRNAs miRBase (v22) for hsa/human is 180. The maximum sequence length of mature miRNA in miRBase (v22) in mmu/mouse is 27, while the maximum sequence length of hairpin miRNAs miRBase (v22) for mmu/mouse is 147.
+> 
+> ***Example:*** `---max-read-length 27`
 
 ### 2.3 Orchestration options
 
@@ -127,7 +155,6 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > ***Example:*** `--threads 12`
 
-
 ---  
   `--tmp-dir TMP_DIR`   
 > **Max number of threads for each process.**  
@@ -160,6 +187,7 @@ module load singularity snakemake
 # Step 2A.) Dry-run the pipeline
 ./mir-seek run --input .tests/*.R?.fastq.gz \
                   --output /data/$USER/output \
+                  --genome hg38 \
                   --mode slurm \
                   --dry-run
 
@@ -169,5 +197,6 @@ module load singularity snakemake
 # the pipeline in this mode.
 ./mir-seek run --input .tests/*.R?.fastq.gz \
                   --output /data/$USER/output \
+                  --genome hg38 \
                   --mode slurm
 ```
