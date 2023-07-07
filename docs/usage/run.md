@@ -70,7 +70,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `---min-read-length 17`
 
 ---  
-  `--max-read-length MIN_READ_LENGTH`   
+  `--max-read-length MAX_READ_LENGTH`   
 > **Maximum read length.**  
 > *type: int*  
 > *default: 27*
