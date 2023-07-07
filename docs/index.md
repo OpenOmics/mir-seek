@@ -2,7 +2,10 @@
 
   <h1 style="font-size: 250%">mir-seek 🔬</h1>
 
-  <b><i>An awesome microRNA-sequencing pipeline</i></b><br> 
+  <b><i>An awesome microRNA-sequencing pipeline</i></b><br>
+  <a href="https://hub.docker.com/repository/docker/skchronicles/mir-seek">
+    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/skchronicles/mir-seek">
+  </a> 
   <a href="https://github.com/OpenOmics/mir-seek/actions/workflows/main.yaml">
     <img alt="tests" src="https://github.com/OpenOmics/mir-seek/workflows/tests/badge.svg">
   </a>

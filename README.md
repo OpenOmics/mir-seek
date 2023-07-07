@@ -4,7 +4,7 @@
   
   **_An awesome microRNA-sequencing pipeline_**
 
-  [![tests](https://github.com/OpenOmics/mir-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mir-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mir-seek?color=brightgreen)](https://github.com/OpenOmics/mir-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mir-seek)](https://github.com/OpenOmics/mir-seek/blob/main/LICENSE) 
+  [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mir-seek)](https://hub.docker.com/repository/docker/skchronicles/mir-seek) [![tests](https://github.com/OpenOmics/mir-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mir-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mir-seek?color=brightgreen)](https://github.com/OpenOmics/mir-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mir-seek)](https://github.com/OpenOmics/mir-seek/blob/main/LICENSE) 
   
   <i>
     This is the home of the pipeline, mir-seek. Its long-term goals: to accurately estimate microRNA expression, to perform quality-control, and to boldly discover known and novel miRNAs like no pipeline before!
@@ -19,7 +19,7 @@ The **`./mir-seek`** pipeline is composed several inter-related sub commands to 
  * [<code>mir-seek <b>run</b></code>](https://openomics.github.io/mir-seek/usage/run/): Run the mir-seek pipeline with your input files.
  * [<code>mir-seek <b>unlock</b></code>](https://openomics.github.io/mir-seek/usage/unlock/): Unlocks a previous runs output directory.
  * [<code>mir-seek <b>install</b></code>](https://openomics.github.io/mir-seek/usage/install/): Download reference files locally.
- * [<code>mir-seek <b>cache</b></code>](https://openomics.github.io/mir-seek/usage/cache/): Cache remote resources locally, coming soon!
+ * [<code>mir-seek <b>cache</b></code>](https://openomics.github.io/mir-seek/usage/cache/): Cache software containers locally.
 
 **mir-seek** is a comprehensive microRNA-sequencing pipeline. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
 
