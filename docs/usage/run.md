@@ -22,7 +22,7 @@ $ mir-seek run [--help] \
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a reference genome for alignment and annotation via `--genome` argument.
+A user **must** provide a list of single-end FastQ files (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a reference genome for alignment and annotation via `--genome` argument.
 
 Use you can always use the `-h` option for information on a specific sub command. 
 
@@ -31,12 +31,12 @@ Use you can always use the `-h` option for information on a specific sub command
 Each of the following arguments are required. Failure to provide a required argument will result in a non-zero exit-code.
 
   `--input INPUT [INPUT ...]`  
-> **Input FastQ or BAM file(s).**  
+> **Input FastQ file(s).**  
 > *type: file(s)*  
 > 
-> One or more FastQ files can be provided. The pipeline does NOT support single-end data. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
+> One or more single-end FastQ files can be provided. The pipeline does NOT support paired-end data. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Please note the input FastQ files should always be gzipp-ed.
 > 
-> ***Example:*** `--input .tests/*.R?.fastq.gz`
+> ***Example:*** `--input .tests/*.R1.fastq.gz`
 
 ---  
   `--output OUTPUT`
@@ -185,7 +185,7 @@ module purge
 module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
-./mir-seek run --input .tests/*.R?.fastq.gz \
+./mir-seek run --input .tests/*.fastq.gz \
                   --output /data/$USER/output \
                   --genome hg38 \
                   --mode slurm \
@@ -195,7 +195,7 @@ module load singularity snakemake
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
-./mir-seek run --input .tests/*.R?.fastq.gz \
+./mir-seek run --input .tests/*.fastq.gz \
                   --output /data/$USER/output \
                   --genome hg38 \
                   --mode slurm
