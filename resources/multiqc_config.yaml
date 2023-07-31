@@ -1,32 +1,19 @@
 # Order that modules should appear in report. Try to list in order of analysis,
 # eg. FastQC is usually the first step, so should be last in this list
 # USAGE: multiqc -f -c multiqc_config.yaml --interactive  -d ../  -n multiqc_report.html
-
 module_order:
-# Pre-alignment QC
     - 'fastqc':
-        name: 'FastQC'
-        info: 'This section of the report shows FastQC results before and after adapter trimming.'
+        name: 'FastQC (before/after trimming)'
+        info: 'FastQC is split into two sections (before and after trimming) due to the high-level of adapter contamination found in miR-seq. This section of the report shows FastQC results <b>before after adapter trimming</b>. Adapter contamination is to be expected for this sequencing application type, an it will occur any time a sequenced fragement is shorter than the sequencing read length. Please check the Apdater Content section after trimming adapters to ensure they were correctly removed!'
         path_filters:
-            - '*_fastqc.zip' 
+            - "*_fastqc.zip"
     - 'fastp'
-    - 'cutadapt'
-    - 'trimmomatic'
-    - 'kraken'
-    - 'fastq_screen'
-# Alignment tool stats
     - 'bowtie1'
-    - 'bowtie2'
-    - 'salmon'
-    - 'kallisto'
-    - 'star'
-    - 'tophat'
-# Post-alignment analysis results
-    - 'preseq'
-    - 'qualimap'
-    - 'rseqc'
-    - 'rsem'
-    - 'picard'
-    - 'samblaster'
-    - 'samtools'
-    - 'bamtools'
+
+sp:
+    fastp:
+        fn: "*_fastp_report.json"
+
+fn_ignore_files:
+  - 'bowtie_mature.out'
+  - 'bowtie_reads.out'
