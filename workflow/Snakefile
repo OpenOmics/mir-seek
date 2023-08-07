@@ -56,6 +56,13 @@ rule all:
             join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
             sample=samples
         ),
+        expand(
+            join(workpath, "mirdeep2", "mapper", "{sample}", "{sample}.mapper.tsv"),
+            sample=samples
+        ),
+        # Gather mirdeep2 mapper statistics
+        # @imported from `rule mirdeep2_gather_mapper_statistics` in rules/align.smk
+        join(workpath, "mirdeep2", "mapper", "mirdeep2.mapper.tsv"),
         # Detect known and novel miRNAs,
         # @imported from `rule mirdeep2_run` in rules/quant.smk
         expand(
