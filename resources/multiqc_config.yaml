@@ -8,11 +8,47 @@ module_order:
         path_filters:
             - "*_fastqc.zip"
     - 'fastp'
-    - 'bowtie1'
+    - 'bowtie1':
+        name: 'mirDeep2 Mapper (collapsed/dedup reads)'
+        extra: '<b>Please note:</b> this plot reports information related to collapsed or deduplicated reads. It is recommended to run the miRDeep2 mapper with the <code>-m</code> <i>option</i> to collapse any deplicated reads prior to alignment. The collapsed reads FASTA contains the number of reads that were collapsed for any given sequence. This step reduces the amount of time spent on alignment. As so, these do not reflect the true number of total aligned reads.<br>'
+    - 'alignment_stats'
+
+custom_data:
+    alignment_stats:
+        id: "alignment_stats"
+        section_name: "Alignment Statistics"
+        description: "This section reports alignment statistics for usage fragments. ENCODE defines a usable fragment as a read mapping to one location in the genome. The statistics reported in this section are apply to uniquely aligned reads, meaning multi-mapped reads are only counted once in the calculation. For miR-sequencing ENCODE recommends at least 2 million usable reads per sample."
+        plot_type: "table"
+        pconfig:
+            id: "alignment_stats"
+            namespace: "Alignment Statistics"
+        headers:
+            total:
+                description: "Total number of usable fragments"
+                format: '{:,.0f}'
+                hidden: True
+            mapped:
+                description: "Total number of uniquely aligned reads"
+                format: '{:,.0f}'
+            unmapped:
+                description: "Total number of uniquely unaligned reads"
+                format: '{:,.0f}'
+            "%mapped":
+                description: "Percent of uniquely aligned reads"
+                min: 0.0
+                max: 100.0
+                scale: 'RdYlGn'
+            "%unmapped":
+                description: "Percent of uniquely unaligned reads"
+                min: 0.0
+                max: 100.0
+                scale: 'RdYlGn'
 
 sp:
     fastp:
         fn: "*_fastp_report.json"
+    alignment_stats:
+        fn: "mirdeep2.mapper.tsv"
 
 fn_ignore_files:
   - 'bowtie_mature.out'
