@@ -64,7 +64,7 @@ rule mirdeep2_mapper:
 
     # Extract mapper statistics
     paste \\
-        <(echo -e "sample\\n{params.sample}")
+        <(echo -e "sample\\n{params.sample}") \\
         <(grep -A1 --color=never '^#desc' \\
             {output.map_log} \\
             | cut -f2-
