@@ -60,7 +60,7 @@ rule mirdeep2_mapper:
         -t {output.arf} \\
         -v \\
         -o {threads} \\
-    > {output.map_log}
+    > {output.map_log} 2>&1
 
     # Extract mapper statistics
     paste \\
@@ -114,4 +114,5 @@ rule mirdeep2_gather_mapper_statistics:
         awk 'NR=="2" {{print}}' "${{f}}" \\
         >> {output.map_tsv}
         i=$((i + 1))
+    done
     """
