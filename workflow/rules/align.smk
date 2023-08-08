@@ -67,6 +67,7 @@ rule mirdeep2_mapper:
         <(echo -e "sample\\n{params.sample}") \\
         <(grep -A1 --color=never '^#desc' \\
             {output.map_log} \\
+            | tr ' ' '\\t' \\
             | cut -f2-
         ) \\
     > {output.map_tsv}
