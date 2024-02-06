@@ -37,12 +37,14 @@
     "fastqc_raw": {
         "threads": "4",
         "mem": "16g",
-        "time": "0-04:00:00"
+        "time": "0-04:00:00",
+        "gres": "lscratch:64"
     },
     "fastqc_trim": {
         "threads": "4",
         "mem": "16g",
-        "time": "0-04:00:00"
+        "time": "0-04:00:00",
+        "gres": "lscratch:64"
     },
     "multiqc": {
         "threads": "4",
