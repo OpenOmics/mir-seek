@@ -46,6 +46,7 @@ from src.utils import (
     err,
     exists,
     fatal,
+    genome_options,
     hashed,
     permissions,
     check_cache,
@@ -297,7 +298,7 @@ def parsed_arguments(name, description):
                 [--max-read-length MAX_READ_LENGTH] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT \\
-                --genome {{hg38,mm10}}
+                --genome {{hg38,mm10,custom.json}}
 
         Optional arguments are shown in square brackets above.
 
@@ -321,13 +322,20 @@ def parsed_arguments(name, description):
                                 provided working directory has not been initialized,
                                 it will be created automatically.
                                   Example: --output /data/$USER/output
-          --genome {{hg38,mm10}}       
+          --genome {{hg38,mm10,custom.json}}       
                                 Reference genome. This option defines the reference
                                 genome of the samples. {2} does comes bundled with
                                 prebuilt reference files for human (hg38) and mouse
-                                (mm10) samples. Select one of the following options:
+                                (mm10) samples. Please select one of the following
+                                pre-built options:
                                     • hg38
                                     • mm10
+                                It is worth noting that a custom reference genome can
+                                also be provided at run time. Please see the following
+                                file, config/genome.json, for what is required. If you
+                                are provding your own JSON file, please set the "species"
+                                key to an empty string. Only one reference genome can be
+                                supplied per JSON file.
                                   Example: --genome hg38
 
         {3}{4}Analysis options:{5}
@@ -490,21 +498,22 @@ def parsed_arguments(name, description):
         help = argparse.SUPPRESS
     )
 
+    # Reference genome
+    subparser_run.add_argument(
+        '--genome',
+        required = True,
+        type = lambda option: str(
+            genome_options(subparser_run, option, ['hg38', 'mm10'])
+        ),
+        help = argparse.SUPPRESS
+    )
+
     # Optional Arguments
     # Add custom help message
     subparser_run.add_argument(
         '-h', '--help', 
         action='help', 
         help=argparse.SUPPRESS
-    )
-
-    # Reference genome
-    subparser_run.add_argument(
-        '--genome',
-        required = True,
-        type = str,
-        choices = ['hg38', 'mm10'],
-        help = argparse.SUPPRESS
     )
     
     # Analysis options

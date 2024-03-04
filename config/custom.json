@@ -1,0 +1,12 @@
+{
+    "references": {
+        "ixodes_scapularis": {
+            "adapters":      "/data/OpenOmics/references/mir-seek/custom/Ixodes_scapularis/known_adapters.fa",
+            "bowtie1_index": "/data/OpenOmics/references/mir-seek/custom/Ixodes_scapularis/ixodes_scapularis",
+            "genome":        "/data/OpenOmics/references/mir-seek/custom/Ixodes_scapularis/GCF_016920785.2_ASM1692078v2_genomic.fna",
+            "mature":        "/data/OpenOmics/references/mir-seek/custom/Ixodes_scapularis/isc_mature_mirbase_v22.fa",
+            "hairpin":       "/data/OpenOmics/references/mir-seek/custom/Ixodes_scapularis/isc_hairpin_mirbase_v22.fa",
+            "species":       ""
+        }
+    }
+}
