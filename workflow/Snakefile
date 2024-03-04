@@ -20,8 +20,13 @@ from scripts.common import (
 configfile: 'config.json'                      # Generated from user input and config/*.json
 workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
-genome   = config['options']['genome']         # Reference genome of a set of samples
 samples  = config['samples']                   # List containing basename of samples
+genome   = config['options']['genome']         # Reference genome of a set of samples
+if genome.endswith('.json'):
+    # Custom reference genome provided,
+    # Only one genome will be in JSON,
+    # this is enforced upstream.
+    genome = list(config['references'].keys())[0]
 
 # Analysis options
 min_read_length = config['options']['min_read_length']  # Min length of a trimmed read (discarded if less)

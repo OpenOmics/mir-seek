@@ -358,6 +358,41 @@ def hashed(l):
     return h
 
 
+def genome_options(parser, user_option, prebuilt):
+    """Dynamically checks if --genome option is a vaild choice. Compares against a
+    list of prebuilt or bundled genome reference genomes and accepts a custom reference
+    genome that was built using the 'rna-seek build' commmand. The ability to also
+    accept a custom reference JSON file allows for chaining of the rna-seek build and run
+    commands in succession.
+    @param parser <argparse.ArgumentParser object>:
+        Parser object from which an exception is raised not user_option is not valid
+    @param user_option <str>:
+        Provided value to the rna-seek run, --genome argument
+    @param prebuilt list[<str>]:
+        List of prebuilt or builded reference genomes
+    return user_option <str>:
+        Provided value to the rna-seek run, --genome argument
+        If vaule is not valid or custom reference genome JSON file not readable,
+        an exception is raised.
+    """
+    # Checks for custom built genomes using rna-seek build
+    if user_option.endswith('.json'):
+        # Check file is readable or accessible
+        permissions(parser, user_option, os.R_OK)
+    # Checks against vaild pre-built options
+    # TODO: makes this more dynamic in the future to have it check against
+    # a list of genomes (files) in config/genomes/*.json
+    elif not user_option in prebuilt:
+        # User did NOT provide a vaild choice
+        parser.error("""provided invalid choice, '{}', to --genome argument!\n
+        Choose from one of the following pre-built genome options: \n
+        \t{}\n
+        or supply a custom reference genome JSON file generated from rna-seek build.
+        """.format(user_option, prebuilt))
+    
+    return user_option
+
+
 if __name__ == '__main__':
     # Calculate MD5 checksum of entire file 
     print('{}  {}'.format(md5sum(sys.argv[0]), sys.argv[0]))
