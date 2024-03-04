@@ -22,7 +22,20 @@ rule mirdeep2_run:
         fasta   = config['references'][genome]['genome'],
         mature  = config['references'][genome]['mature'],
         hairpin = config['references'][genome]['hairpin'],
-        species = config['references'][genome]['species'],
+        # Building miRDeep2 -t species option,
+        # To get a list of supported species names,
+        # please run the following command: 
+        #   $ miRDeep2.pl -u
+        # This is not a required option to miRDeep2
+        # so if your organism is not on the list, then
+        # please set the "species" key in the following
+        # file, config/genome.json, to an empty string.
+        # This will ensure mirDeep2 is run without this
+        # option to avoid any errors associated with 
+        # providing an invalid species name.
+        species_option = lambda _: "-t {0}".format(
+            config['references'][genome]['species']
+        ) if config['references'][genome]['species'] else "",
         tmpdir  = join(workpath, "mirdeep2", "run", "{sample}"),
     envmodules: config['tools']['bowtie'],
     container: config['images']['mir-seek'],
@@ -47,8 +60,7 @@ rule mirdeep2_run:
         {params.mature} \\
         none \\
         {params.hairpin} \\
-        -t {params.species} \\
-        -P \\
+        -P {params.species_option} \\
         -v \\
     2> {log.report}
 
