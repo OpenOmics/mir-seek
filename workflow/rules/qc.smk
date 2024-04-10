@@ -30,13 +30,19 @@ rule fastqc_raw:
     tmp=$(mktemp -d -p "{params.tmpdir}")
     trap 'rm -rf "${{tmp}}"' EXIT
 
+    # Create fastqc adapters file,
+    # file needs to be in TSV format
+    paste - - < "{params.adapters}" \\
+        | sed 's/^>//g' \\
+    > "${{tmp}}/adapters.tsv"
+
     # Running fastqc with local
     # disk or a tmpdir, fastqc
     # has been observed to lock
     # up gpfs filesystems, adding
     # this on request by HPC staff
     fastqc \\
-        -a "{params.adapters}" \\
+        -a "${{tmp}}/adapters.tsv" \\
         -t {threads} \\
         -o "${{tmp}}" \\
         {input.fq}
@@ -80,13 +86,19 @@ rule fastqc_trim:
     tmp=$(mktemp -d -p "{params.tmpdir}")
     trap 'rm -rf "${{tmp}}"' EXIT
 
+    # Create fastqc adapters file,
+    # file needs to be in TSV format
+    paste - - < "{params.adapters}" \\
+        | sed 's/^>//g' \\
+    > "${{tmp}}/adapters.tsv"
+
     # Running fastqc with local
     # disk or a tmpdir, fastqc
     # has been observed to lock
     # up gpfs filesystems, adding
     # this on request by HPC staff
     fastqc \\
-        -a "{params.adapters}" \\
+        -a "${{tmp}}/adapters.tsv" \\
         -t {threads} \\
         -o "${{tmp}}" \\
         {input.fq}
