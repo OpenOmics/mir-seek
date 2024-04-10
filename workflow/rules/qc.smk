@@ -19,6 +19,7 @@ rule fastqc_raw:
         rname  = "rawfqc", 
         outdir = join(workpath, "fastqc"),
         tmpdir = tmpdir,
+        adapters = config['references'][genome]['adapters'],
     container: config['images']['mir-seek'],
     threads: int(allocated("threads", "fastqc_raw", cluster))
     shell: """
@@ -35,6 +36,7 @@ rule fastqc_raw:
     # up gpfs filesystems, adding
     # this on request by HPC staff
     fastqc \\
+        -a "{params.adapters}" \\
         -t {threads} \\
         -o "${{tmp}}" \\
         {input.fq}
@@ -67,6 +69,7 @@ rule fastqc_trim:
         rname  = "filtfqc", 
         outdir = join(workpath, "fastqc"),
         tmpdir = tmpdir,
+        adapters = config['references'][genome]['adapters'],
     container: config['images']['mir-seek'],
     threads: int(allocated("threads", "fastqc_trim", cluster))
     shell: """
@@ -83,6 +86,7 @@ rule fastqc_trim:
     # up gpfs filesystems, adding
     # this on request by HPC staff
     fastqc \\
+        -a "{params.adapters}" \\
         -t {threads} \\
         -o "${{tmp}}" \\
         {input.fq}
