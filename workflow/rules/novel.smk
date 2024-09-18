@@ -126,3 +126,87 @@ rule mirdeep2_novel_p1_mapper:
         -o {threads} \\
     > {output.map_log} 2>&1
     """
+
+
+rule mirdeep2_novel_p1_run:
+    """
+    Data-processing step to detect novel miRNA expression using
+    the joint alignments of the cleaned reads across all samples.
+    This step runs mirdeep2 `miRDeep2.pl` on the pass-1 mapper 
+    output to generate a joint callset of novel miRs. This step
+    produces a FASTA file of novel miRs which can be used to
+    quantify novel miRs in each sample using `quantifier.pl`.
+    Please see this issue for more information:
+    https://github.com/rajewsky-lab/mirdeep2/issues/120
+    @Input:
+        All collapsed reads mapped to the reference genome (singleton),
+        FASTA file of processed reads 
+    @Ouput:
+        A joint callset of novel miRNAs in FASTA format
+    """
+    input:
+        arf       = join(workpath, "novel", "mapper", "cohort_mapped.arf"),
+        collapsed = join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
+    output:
+        # TODO: Add fasta file containing novel miRs after running
+        mirna     = join(workpath, "novel", "pass1", "cohort_miRNA_expressed.tsv"),
+    log: 
+        report    = join(workpath, "novel", "pass1", "mirdeep2.log")
+    params:
+        rname   = "novel_run",
+        fasta   = config['references'][genome]['genome'],
+        mature  = config['references'][genome]['mature'],
+        hairpin = config['references'][genome]['hairpin'],
+        # Building miRDeep2 -t species option,
+        # To get a list of supported species names,
+        # please run the following command: 
+        #   $ miRDeep2.pl -u
+        # This is not a required option to miRDeep2
+        # so if your organism is not on the list, then
+        # please set the "species" key in the following
+        # file, config/genome.json, to an empty string.
+        # This will ensure mirDeep2 is run without this
+        # option to avoid any errors associated with 
+        # providing an invalid species name.
+        species_option = lambda _: "-t {0}".format(
+            config['references'][genome]['species']
+        ) if config['references'][genome]['species'] else "",
+        tmpdir  = join(workpath, "novel", "pass1", "cohort"),
+    envmodules: config['tools']['bowtie'],
+    container: config['images']['mir-seek'],
+    threads: int(allocated("threads", "mirdeep2_novel_p1_run", cluster)),
+    shell: """
+    # Setups temporary directory for
+    # intermediate files, miRDeep2
+    # output directories rely on
+    # timestamps, this helps avoid
+    # collision due to multiple runs
+    # of the same sample
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    cd "${{tmp}}"
+
+    # Run miRDeep2 get a joint callset
+    # of novel miRNAs across all samples
+    miRDeep2.pl \\
+        {input.collapsed} \\
+        {params.fasta} \\
+        {input.arf} \\
+        {params.mature} \\
+        none \\
+        {params.hairpin} \\
+        -P {params.species_option} \\
+        -v \\
+    2> {log.report}
+
+    # Link expression results from 
+    # miRDeep2 timestamp directory
+    exp=$(
+        find "${{tmp}}/expression_analyses/" \\
+            -type f \\
+            -iname "miRNA_expressed.csv" \\
+            -print \\
+            -quit
+    )
+    ln -sf "${{exp}}" {output}
+    """
