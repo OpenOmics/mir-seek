@@ -25,6 +25,21 @@
         "mem": "72g",
         "time": "1-18:00:00"
     },
+    "mirdeep2_novel_p1_mapper": {
+        "threads": "12",
+        "mem": "72g",
+        "time": "3-12:00:00"
+    },
+    "mirdeep2_novel_p1_run": {
+        "threads": "6",
+        "mem": "72g",
+        "time": "3-12:00:00"
+    },
+    "mirdeep2_novel_p2_quantifier": {
+        "threads": "12",
+        "mem": "72g",
+        "time": "1-12:00:00"
+    },
     "mature_expression": {
         "threads": "4",
         "mem": "16g",
