@@ -1,14 +1,14 @@
-# Rules for quantification of known and novel miRNAs
+# Rules for quantification of known miRNAs
 rule mirdeep2_run:
     """
-    Data-processing step to detect known and novel miRNA expression.
+    Data-processing step to detect known miRNA expression.
     For more information, check out its github repository:
     https://github.com/rajewsky-lab/mirdeep2
     @Input:
         Reads mapped to the reference genome (scatter),
         FASTA file of processed reads 
     @Ouput:
-        Known and novel miRNA expression
+        Known miRNA expression
     """
     input:
         arf       = join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
@@ -84,7 +84,7 @@ rule mature_expression:
     expression of multiple precursor miRNA pointing to the same mature miRNA to find
     average mature miRNA expression.
     @Input:
-        Known and novel miRNA expression (scatter)
+        Known miRNA expression (scatter)
     @Ouput:
         Average mature miRNA expression
     """

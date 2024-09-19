@@ -83,9 +83,6 @@ rule mirdeep2_novel_p1_mapper:
     output:
         arf       = join(workpath, "novel", "mapper", "cohort_mapped.arf"),
         collapsed = join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
-        map_log   = join(workpath, "novel", "mapper", "cohort", "cohort.mapper.log"),
-        map_tsv   = join(workpath, "novel", "mapper", "cohort", "cohort.mapper.tsv"),
-        new_log   = join(workpath, "novel", "mapper", "cohort", "cohort.bowtie.log"),
     params:
         rname = "novel_mapper",
         # Minimum read length also
@@ -93,6 +90,7 @@ rule mirdeep2_novel_p1_mapper:
         min_len = min_read_length,
         bw_index = config['references'][genome]['bowtie1_index'],
         tmpdir   = join(workpath, "novel", "mapper", "cohort"),
+        map_log = join(workpath, "novel", "mapper", "cohort", "cohort.mapper.log"),
     envmodules: config['tools']['bowtie'],
     container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mirdeep2_novel_p1_mapper", cluster)),
@@ -124,7 +122,11 @@ rule mirdeep2_novel_p1_mapper:
         -t {output.arf} \\
         -v \\
         -o {threads} \\
-    > {output.map_log} 2>&1
+    > {params.map_log} 2>&1
+
+    # Delete bowtie2 log so it does
+    # not get picked up by multiQC
+    rm -f "${{tmp}}/bowtie.log"
     """
 
 
@@ -142,14 +144,15 @@ rule mirdeep2_novel_p1_run:
         All collapsed reads mapped to the reference genome (singleton),
         FASTA file of processed reads 
     @Ouput:
-        A joint callset of novel miRNAs in FASTA format
+        A joint callset of novel mature miRNAs in FASTA format,
+        A joint callset of novel hairpin miRNAs in FASTA format
     """
     input:
         arf       = join(workpath, "novel", "mapper", "cohort_mapped.arf"),
         collapsed = join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
     output:
-        # TODO: Add fasta file containing novel miRs after running
-        mirna     = join(workpath, "novel", "pass1", "cohort_miRNA_expressed.tsv"),
+        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
+        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
     log: 
         report    = join(workpath, "novel", "pass1", "mirdeep2.log")
     params:
@@ -199,14 +202,113 @@ rule mirdeep2_novel_p1_run:
         -v \\
     2> {log.report}
 
-    # Link expression results from 
+    # Get the novel miRNA mature and hairpin
+    # sequences from the miRDeep2 output
+    mature=$(
+        find "${{tmp}}/" \\
+            -type f \\
+            -iname "novel_mature_*.fa" \\
+            -print \\
+            -quit
+    )
+    star=$(
+        find "${{tmp}}/" \\
+            -type f \\
+            -iname "novel_star_*.fa" \\
+            -print \\
+            -quit
+    )
+    # Rename the identifier to contain the
+    # suffix _star to indicate if its a star
+    # sequence before merging the two files
+    sed -i '/^>.*/s/$/_star/' "${{star}}"
+    cat "${{mature}}" "${{star}}" > {output.mature}
+    
+    # Create a symbolic link to the novel 
+    # hairpin sequences for quantification
+    hairpin=$(
+        find "${{tmp}}/" \\
+            -type f \\
+            -iname "novel_pres_*.fa" \\
+            -print \\
+            -quit
+    )
+    ln -sf "${{hairpin}}" {output.hairpin}
+    """
+
+
+# Second-pass rules for novel miR quantification
+rule mirdeep2_novel_p2_quantifier:
+    """
+    Data-processing step to quantify novel miRNAs in each sample
+    using the novel miR fasta file that was generated in the first
+    pass. This step runs mirdeep2 `quantifier.pl` on the novel miR
+    fasta file to get novel miR counts.
+    Please see this issue for more information:
+    https://github.com/rajewsky-lab/mirdeep2/issues/120
+    @Input:
+        FASTA file of collapsed reads mapped (scatter-per-sample),
+        Reads mapped to the reference genome (scatter-per-sample),
+        FASTA file of novel mature miRNAs,
+        FASTA file of novel hairpin miRNAs
+    @Output:
+        Novel miRNA expression
+    """
+    input:
+        arf       = join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
+        collapsed = join(workpath, "mirdeep2", "mapper", "{sample}_collapsed.fa"),
+        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
+        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
+    output:
+        mirna     = join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
+    params:
+        rname   = "novel_quantifier",
+        fasta   = config['references'][genome]['genome'],
+        tmpdir  = join(workpath, "novel", "counts", "{sample}"),
+        # Building miRDeep2 -t species option,
+        # To get a list of supported species names,
+        # please run the following command: 
+        #   $ miRDeep2.pl -u
+        # This is not a required option to miRDeep2
+        # so if your organism is not on the list, then
+        # please set the "species" key in the following
+        # file, config/genome.json, to an empty string.
+        # This will ensure mirDeep2 is run without this
+        # option to avoid any errors associated with 
+        # providing an invalid species name.
+        species_option = lambda _: "-t {0}".format(
+            config['references'][genome]['species']
+        ) if config['references'][genome]['species'] else "",
+    envmodules: config['tools']['bowtie'],
+    container: config['images']['mir-seek'],
+    threads: int(allocated("threads", "mirdeep2_novel_p2_quantifier", cluster)),
+    shell: """
+    # Setups temporary directory for
+    # intermediate files, miRDeep2
+    # output directories rely on
+    # timestamps, this helps avoid
+    # collision due to multiple runs
+    # of the same sample
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    cd "${{tmp}}"
+
+    # Run miRDeep2 to quantify novel
+    # miRNAs in each sample
+    quantifier.pl \\
+        -p {input.hairpin} \\
+        -m {input.mature} \\
+        -r {input.collapsed} \\
+        -T {threads} {params.species_option} \\
+    
+    # Link novel expression results from 
     # miRDeep2 timestamp directory
     exp=$(
-        find "${{tmp}}/expression_analyses/" \\
+        find "${{tmp}}/" \\
             -type f \\
             -iname "miRNA_expressed.csv" \\
             -print \\
             -quit
     )
-    ln -sf "${{exp}}" {output}
+    ln -sf "${{exp}}" {output.mirna}
     """
