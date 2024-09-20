@@ -297,3 +297,70 @@ rule mirdeep2_novel_p2_quantifier:
     )
     ln -sf "${{exp}}" {output.mirna}
     """
+
+
+rule mirdeep2_novel_p2_mature_expression:
+    """
+    Data-processing step to calculate avergae expression across the same mature novel miRNA.
+    The relationship between mature to precursor novel miRNA is 1:many. This step averages 
+    the expression of multiple precursor miRNA pointing to the same mature miRNA to find
+    average novel mature miRNA expression.
+    @Input:
+        Known novel miRNA expression (scatter)
+    @Ouput:
+        Average novel mature miRNA expression
+    """
+    input:
+        mirna   = join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
+    output:
+        avg_exp = join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tsv"),
+    params:
+        rname = "novel_matrexp",
+    container: config['images']['mir-seek'],
+    threads: int(allocated("threads", "mirdeep2_novel_p2_mature_expression", cluster)),
+    shell: """
+    # Removes comment character from 
+    # header and calculates average 
+    # mature miRNA expression
+    head -1 {input.mirna} \\
+        | sed '1 s/^#//g' \\
+        | cut -f1,2 \\
+    > {output.avg_exp}
+    # Find average expression due to
+    # 1:many relationship between 
+    # mature and precursor miRNA
+    tail -n+2 {input.mirna} \\
+        | cut -f1,2 \\
+        | awk -F '\\t' -v OFS='\\t' '{{seen[$1]+=$2; count[$1]++}} END {{for (x in seen) print x, seen[x]/count[x]}}' \\
+    >> {output.avg_exp}
+    """
+
+
+rule mirdeep2_novel_p2_merge_results:
+    """
+    Data-processing step to aggreagte per-sample mature miRNA 
+    counts into a counts matrix.
+    @Input:
+        Average novel mature miRNA expression files (gather)
+    @Output:
+        Average novel mature miRNA counts matrix
+    """
+    input:
+        counts = expand(join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tsv"), sample=samples),
+    output:
+        matrix = join(workpath, "novel", "counts", "miRDeep2_novel_mature_miRNA_counts.tsv"),
+    params:
+        rname   = "novel_mirmatrix",
+        script  = join("workflow", "scripts", "create_matrix.py"),
+    container: config['images']['mir-seek'],
+    threads: int(allocated("threads", "mirdeep2_novel_p2_merge_results", cluster)),
+    shell: """
+    # Create counts matrix of mature miRNAs
+    {params.script} \\
+        --input {input.counts} \\
+        --output {output.matrix} \\
+        --join-on miRNA \\
+        --extract read_count \\
+        --clean-suffix '_novel_mature_miRNA_expression.tsv' \\
+        --nan-values 0.0
+    """

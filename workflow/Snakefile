@@ -94,6 +94,34 @@ rule all:
             join(workpath, "fastqc", "{sample}_trimmed_fastqc.zip"),
             sample=samples
         ),
+        # Two-pass approach to quantify novel miRNAs,
+        # In the 1st pass, we concatenate all cleaned
+        # reads across all samples, align them to the
+        # reference genome, and run mirdeep2 to get a
+        # joint callset of novel miRs in fasta format. 
+        # In the 2nd pass, we quantify novel miRs for 
+        # each sample using the novel miR fasta that
+        # was generated in the first pass.
+        # First-pass rules for novel miR quantification,
+        # @imported from `rule mirdeep2_novel_p1_concatenate` in rules/novel.smk
+        join(workpath, "novel", "cohort_trimmed_cleaned.fa"),
+        # @imported from `rule mirdeep2_novel_p1_mapper` in rules/novel.smk
+        join(workpath, "novel", "mapper", "cohort_mapped.arf"),
+        join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
+        # @imported from `rule mirdeep2_novel_p1_run` in rules/novel.smk
+        join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
+        join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
+        # Second-pass rules for novel miR quantification,
+        # @imported from `rule mirdeep2_novel_p2_quantifier` in rules/novel.smk
+        expand(
+            join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
+            sample=samples
+        ),
+        expand(
+            join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tsv"),
+            sample=samples
+        ),
+        join(workpath, "novel", "counts", "miRDeep2_novel_mature_miRNA_counts.tsv"),
         # Aggregated quality-control report,
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),
@@ -106,3 +134,4 @@ include: join("rules", "trim.smk")
 include: join("rules", "align.smk")
 include: join("rules", "quant.smk")
 include: join("rules", "qc.smk")
+include: join("rules", "novel.smk")
