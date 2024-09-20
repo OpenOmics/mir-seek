@@ -263,22 +263,7 @@ rule mirdeep2_novel_p2_quantifier:
         mirna     = join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
     params:
         rname   = "novel_quantifier",
-        fasta   = config['references'][genome]['genome'],
         tmpdir  = join(workpath, "novel", "counts", "{sample}"),
-        # Building miRDeep2 -t species option,
-        # To get a list of supported species names,
-        # please run the following command: 
-        #   $ miRDeep2.pl -u
-        # This is not a required option to miRDeep2
-        # so if your organism is not on the list, then
-        # please set the "species" key in the following
-        # file, config/genome.json, to an empty string.
-        # This will ensure mirDeep2 is run without this
-        # option to avoid any errors associated with 
-        # providing an invalid species name.
-        species_option = lambda _: "-t {0}".format(
-            config['references'][genome]['species']
-        ) if config['references'][genome]['species'] else "",
     envmodules: config['tools']['bowtie'],
     container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mirdeep2_novel_p2_quantifier", cluster)),
@@ -299,7 +284,7 @@ rule mirdeep2_novel_p2_quantifier:
         -p {input.hairpin} \\
         -m {input.mature} \\
         -r {input.collapsed} \\
-        -T {threads} {params.species_option} \\
+        -T {threads}
     
     # Link novel expression results from 
     # miRDeep2 timestamp directory
