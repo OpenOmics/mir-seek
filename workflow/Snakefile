@@ -31,6 +31,11 @@ if genome.endswith('.json'):
 # Analysis options
 min_read_length = config['options']['min_read_length']  # Min length of a trimmed read (discarded if less)
 max_read_length = config['options']['max_read_length']  # Max length of a trimmed read (cropped if greater)
+# Run mirdeep2 in two-passes to 
+# identify/quantify novel miRNAs
+identify_novel_mirs = str_bool(
+    config['options']['novel_mir_identification']
+)
 
 # Read in resource information,
 # containing information about 
@@ -103,25 +108,47 @@ rule all:
         # each sample using the novel miR fasta that
         # was generated in the first pass.
         # First-pass rules for novel miR quantification,
-        # @imported from `rule mirdeep2_novel_p1_concatenate` in rules/novel.smk
-        join(workpath, "novel", "cohort_trimmed_cleaned.fa"),
+        # @imported from `rule mirdeep2_novel_p1_concatenate` in rules/novel.smk,
+        # This rule is only run if `identify_novel_mirs` is set to True.
+        provided(
+            [join(workpath, "novel", "cohort_trimmed_cleaned.fa")], 
+            identify_novel_mirs
+        ),
         # @imported from `rule mirdeep2_novel_p1_mapper` in rules/novel.smk
-        join(workpath, "novel", "mapper", "cohort_mapped.arf"),
-        join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
+        # This rule is only run if `identify_novel_mirs` is set to True.
+        provided(
+            [join(workpath, "novel", "mapper", "cohort_mapped.arf")],
+            identify_novel_mirs
+        ),
+        provided(
+            [join(workpath, "novel", "mapper", "cohort_collapsed.fa")],
+            identify_novel_mirs
+        ),
         # @imported from `rule mirdeep2_novel_p1_run` in rules/novel.smk
-        join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
-        join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
+        # This rule is only run if `identify_novel_mirs` is set to True.
+        provided(
+            [join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv")],
+            identify_novel_mirs
+        ),
+        provided(
+            [join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv")],
+            identify_novel_mirs
+        ),
         # Second-pass rules for novel miR quantification,
         # @imported from `rule mirdeep2_novel_p2_quantifier` in rules/novel.smk
+        # This rule is only run if `identify_novel_mirs` is set to True.
         expand(
             join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
-            sample=samples
+            sample=provided(samples, identify_novel_mirs)
         ),
         expand(
             join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tsv"),
-            sample=samples
+            sample=provided(samples, identify_novel_mirs)
         ),
-        join(workpath, "novel", "counts", "miRDeep2_novel_mature_miRNA_counts.tsv"),
+        provided(
+            [join(workpath, "novel", "counts", "miRDeep2_novel_mature_miRNA_counts.tsv")],
+            identify_novel_mirs
+        ),
         # Aggregated quality-control report,
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),

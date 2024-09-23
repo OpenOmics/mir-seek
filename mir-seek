@@ -296,6 +296,7 @@ def parsed_arguments(name, description):
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--min-read-length MIN_READ_LENGTH] \\
                 [--max-read-length MAX_READ_LENGTH] \\
+                [--novel-mir-identification]
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT \\
                 --genome {{hg38,mm10,custom.json}}
@@ -364,6 +365,16 @@ def parsed_arguments(name, description):
                                 value to this option.
                                   Default: 27
                                   Example: --max-read-length 27
+          --novel-mir-identification
+                                Enables novel miR identification. If this option is
+                                provided, the pipeline will run mirdeep2 using a two
+                                pass approach to generate a novel miR counts matrix. 
+                                In the first-pass,  novel miRs are identified using
+                                information across all samples. In the second-pass, 
+                                the expression of each novel is quantified. If you
+                                are interested in identifying and quantifying novel 
+                                miRs, please provide this option.
+                                  Example: --novel-mir-identification
 
         {3}{4}Orchestration options:{5}
           --mode {{slurm,local}}  
@@ -533,6 +544,15 @@ def parsed_arguments(name, description):
         type = int,
         required = False,
         default = 27,
+        help = argparse.SUPPRESS
+    )
+
+    # Novel miR identification
+    subparser_run.add_argument(
+        '--novel-mir-identification',
+        action = 'store_true',
+        required = False,
+        default = False,
         help = argparse.SUPPRESS
     )
 
