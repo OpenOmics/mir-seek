@@ -15,6 +15,7 @@ $ mir-seek run [--help] \
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       [--min-read-length MIN_READ_LENGTH] \
       [--max-read-length MAX_READ_LENGTH] \
+      [--novel-mir-identification] \
       --input INPUT [INPUT ...] \
       --output OUTPUT \
       --genome {hg38,mm10}
@@ -78,6 +79,15 @@ Each of the following arguments are optional, and do not need to be provided.
 > After trimming adapters, reads that exceed this length will be trimmed again from their 3'-end to this exact length. This option may result in the recovery of additional aligned reads, as miRDeep2's aligner only allows for  1 mismatch. This means if a trimmed read's length is 26 bps and it perfectly aligns to a 24 bp micro-RNA, then it will remain unaligned (2 mismatches); however, if this option were set to 25, then it would not be discarded. If you do not want to cropped any of the  reads, you can set this options value to a higher  number, like 999. If you want to maximize the number of aligned reads at the cost of accuracy/precision, then you can set this option to a lower number, like 25. Please take care before overriding the default  value to this option. The maximum sequence length of mature miRNAs in miRBase (v22) for hsa/human is 28, while the maximum sequence length of hairpin miRNAs miRBase (v22) for hsa/human is 180. The maximum sequence length of mature miRNA in miRBase (v22) in mmu/mouse is 27, while the maximum sequence length of hairpin miRNAs miRBase (v22) for mmu/mouse is 147.
 > 
 > ***Example:*** `---max-read-length 27`
+
+---  
+  `--novel-mir-identification`  
+> **Quantify novel microRNAs.**  
+> *type: boolean flag*  
+>  
+> This option will enable the pipeline to identify novel microRNAs.  If this option is provided, the pipeline will run mirdeep2 using a two-pass approach to create a counts matrix of novel miR expression. In the first-pass,  novel miRs are identified using information across all samples. In the second-pass, the expression of each novel is quantified using *quantifier.pl* and a counts matrix is produced.  If you are interested in identifying and quantifying novel microRNAs, then please provide this option. Please note that this option will increase the runtime of the pipeline.  
+>  
+> ***Example:*** `--novel-mir-identification`  
 
 ### 2.3 Orchestration options
 
@@ -188,6 +198,7 @@ module load singularity snakemake
 ./mir-seek run --input .tests/*.fastq.gz \
                   --output /data/$USER/output \
                   --genome hg38 \
+                  --novel-mir-identification \
                   --mode slurm \
                   --dry-run
 
@@ -198,5 +209,6 @@ module load singularity snakemake
 ./mir-seek run --input .tests/*.fastq.gz \
                   --output /data/$USER/output \
                   --genome hg38 \
+                  --novel-mir-identification \
                   --mode slurm
 ```
