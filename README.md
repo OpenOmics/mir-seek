@@ -4,7 +4,7 @@
   
   **_An awesome microRNA-sequencing pipeline_**
 
-  [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mir-seek)](https://hub.docker.com/repository/docker/skchronicles/mir-seek) [![tests](https://github.com/OpenOmics/mir-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mir-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mir-seek?color=brightgreen)](https://github.com/OpenOmics/mir-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mir-seek)](https://github.com/OpenOmics/mir-seek/blob/main/LICENSE) 
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13834237.svg)](https://doi.org/10.5281/zenodo.13834237) [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/OpenOmics/mir-seek?color=blue&include_prereleases)](https://github.com/OpenOmics/mir-seek/releases) [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/mir-seek)](https://hub.docker.com/repository/docker/skchronicles/mir-seek)<br>[![tests](https://github.com/OpenOmics/mir-seek/workflows/tests/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/mir-seek/workflows/docs/badge.svg)](https://github.com/OpenOmics/mir-seek/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/mir-seek?color=brightgreen)](https://github.com/OpenOmics/mir-seek/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/mir-seek)](https://github.com/OpenOmics/mir-seek/blob/main/LICENSE) 
   
   <i>
     This is the home of the pipeline, mir-seek. Its long-term goals: to accurately estimate microRNA expression, to perform quality-control, and to boldly discover known and novel miRNAs like no pipeline before!
@@ -30,11 +30,13 @@ Before getting started, we highly recommend reading through the [usage](https://
 For more information about issues or trouble-shooting a problem, please checkout our [FAQ](https://openomics.github.io/mir-seek/faq/questions/) prior to [opening an issue on Github](https://github.com/OpenOmics/mir-seek/issues).
 
 ## Dependencies
+
 **Requires:** `singularity>=3.5`  `snakemake>=6.0`  `snakemake<8.0`  
 
 At the current moment, the pipeline uses a mixture of enviroment modules and docker images; however, this will be changing soon! In the very near future, the pipeline will only use docker images. With that being said, [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) and [singularity](https://singularity.lbl.gov/all-releases) must be installed on the target system. Snakemake orchestrates the execution of each step in the pipeline. To guarantee the highest level of reproducibility, each step of the pipeline will rely on versioned images from [DockerHub](https://hub.docker.com/orgs/nciccbr/repositories). Snakemake uses singularity to pull these images onto the local filesystem prior to job execution, and as so, snakemake and singularity will be the only two dependencies in the future.
 
 ## Installation
+
 Please clone this repository to your local filesystem using the following command:
 ```bash
 # Clone Repository from Github
@@ -49,10 +51,12 @@ module load snakemake singularity
 ```
 
 ## Contribute 
+
 This site is a living document, created for and by members like you. mir-seek is maintained by the members of OpenOmics and is improved by continous feedback! We encourage you to contribute new content and make improvements to existing content via pull request to our [GitHub repository](https://github.com/OpenOmics/mir-seek).
 
-
 ## Cite
+
+Please note that more citation formats and releases can be found on the [mir-seek zenodo page](https://doi.org/10.5281/zenodo.13834237).
 
 If you use this software, please cite it as below:  
 
@@ -60,7 +64,17 @@ If you use this software, please cite it as below:
   <summary><b><i>@BibText</i></b></summary>
  
 ```text
-Citation coming soon!
+@software{Kuhn_OpenOmics_mir-seek_2024,
+  author       = {Skyler, Kuhn and
+                  Gary, Zhang},
+  title        = {OpenOmics/mir-seek: v0.3.0},
+  month        = sep,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v0.3.0},
+  doi          = {10.5281/zenodo.13834238},
+  url          = {https://doi.org/10.5281/zenodo.13834238}
+}
 ```
 
 </details>
@@ -69,12 +83,13 @@ Citation coming soon!
   <summary><b><i>@APA</i></b></summary>
 
 ```text
-Citation coming soon!
+Skyler, K., & Gary, Z. (2024). OpenOmics/mir-seek: v0.3.0 (v0.3.0). Zenodo. https://doi.org/10.5281/zenodo.13834238
 ```
 
 </details>
 
 
 ## References
+
 <sup>**1.**  Kurtzer GM, Sochat V, Bauer MW (2017). Singularity: Scientific containers for mobility of compute. PLoS ONE 12(5): e0177459.</sup>  
 <sup>**2.**  Koster, J. and S. Rahmann (2018). "Snakemake-a scalable bioinformatics workflow engine." Bioinformatics 34(20): 3600.</sup>  
