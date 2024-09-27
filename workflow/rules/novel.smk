@@ -151,8 +151,8 @@ rule mirdeep2_novel_p1_run:
         arf       = join(workpath, "novel", "mapper", "cohort_mapped.arf"),
         collapsed = join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
     output:
-        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
-        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
+        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.fa"),
+        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.fa"),
     log: 
         report    = join(workpath, "novel", "pass1", "mirdeep2.log")
     params:
@@ -211,18 +211,10 @@ rule mirdeep2_novel_p1_run:
             -print \\
             -quit
     )
-    star=$(
-        find "${{tmp}}/" \\
-            -type f \\
-            -iname "novel_star_*.fa" \\
-            -print \\
-            -quit
-    )
-    # Rename the identifier to contain the
-    # suffix _star to indicate if its a star
-    # sequence before merging the two files
-    sed -i '/^>.*/s/$/_star/' "${{star}}"
-    cat "${{mature}}" "${{star}}" > {output.mature}
+
+    # Create a symbolic link to the novel 
+    # mature sequences for quantification
+    ln -sf "${{mature}}" {output.mature}
     
     # Create a symbolic link to the novel 
     # hairpin sequences for quantification
@@ -257,8 +249,8 @@ rule mirdeep2_novel_p2_quantifier:
     input:
         arf       = join(workpath, "mirdeep2", "mapper", "{sample}_mapped.arf"),
         collapsed = join(workpath, "mirdeep2", "mapper", "{sample}_collapsed.fa"),
-        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv"),
-        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv"),
+        mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.fa"),
+        hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.fa"),
     output:
         mirna     = join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
     params:

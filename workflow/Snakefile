@@ -127,11 +127,11 @@ rule all:
         # @imported from `rule mirdeep2_novel_p1_run` in rules/novel.smk
         # This rule is only run if `identify_novel_mirs` is set to True.
         provided(
-            [join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.tsv")],
+            [join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.fa")],
             identify_novel_mirs
         ),
         provided(
-            [join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.tsv")],
+            [join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.fa")],
             identify_novel_mirs
         ),
         # Second-pass rules for novel miR quantification,
