@@ -152,7 +152,10 @@ rule mirdeep2_novel_p1_run:
         collapsed = join(workpath, "novel", "mapper", "cohort_collapsed.fa"),
     output:
         mature    = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.fa"),
+        m_bed     = join(workpath, "novel", "pass1", "cohort_novel_mature_miRNA.bed"),
         hairpin   = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.fa"),
+        h_bed     = join(workpath, "novel", "pass1", "cohort_novel_hairpin_miRNA.bed"),
+        mapping   = join(workpath, "novel", "pass1", "cohort_novel_mirdeep_ids_to_genomic_coordinates.tsv"),
     log: 
         report    = join(workpath, "novel", "pass1", "mirdeep2.log")
     params:
@@ -160,6 +163,7 @@ rule mirdeep2_novel_p1_run:
         fasta   = config['references'][genome]['genome'],
         mature  = config['references'][genome]['mature'],
         hairpin = config['references'][genome]['hairpin'],
+        intersect = join(workpath, "workflow", "scripts", "intersect.py"),
         # Building miRDeep2 -t species option,
         # To get a list of supported species names,
         # please run the following command: 
@@ -203,7 +207,9 @@ rule mirdeep2_novel_p1_run:
     2> {log.report}
 
     # Get the novel miRNA mature and hairpin
-    # sequences from the miRDeep2 output
+    # sequences from the miRDeep2 output along
+    # with their BED files, which contain the
+    # genomic coordinates of each novel miR.
     mature=$(
         find "${{tmp}}/" \\
             -type f \\
@@ -211,13 +217,24 @@ rule mirdeep2_novel_p1_run:
             -print \\
             -quit
     )
-
+    m_bed=$(
+        find "${{tmp}}/" \\
+            -type f \\
+            -iname "novel_mature_*.bed" \\
+            -print \\
+            -quit
+    )
     # Create a symbolic link to the novel 
     # mature sequences for quantification
     ln -sf "${{mature}}" {output.mature}
-    
+    # Remove header from BED file
+    awk -F '\\t' -v OFS='\\t' 'NF>3 {{print}}' \\
+        "${{m_bed}}" \\
+    > {output.m_bed}
+
     # Create a symbolic link to the novel 
     # hairpin sequences for quantification
+    # and remove header from BED file
     hairpin=$(
         find "${{tmp}}/" \\
             -type f \\
@@ -225,7 +242,34 @@ rule mirdeep2_novel_p1_run:
             -print \\
             -quit
     )
+    h_bed=$(
+        find "${{tmp}}/" \\
+            -type f \\
+            -iname "novel_pres_*.bed" \\
+            -print \\
+            -quit
+    )
     ln -sf "${{hairpin}}" {output.hairpin}
+    awk -F '\\t' -v OFS='\\t' 'NF>3 {{print}}' \\
+        "${{h_bed}}" \\
+    > {output.h_bed}
+
+    # Create a mapping file to rename mirdeep2's
+    # novel identifiers (not human readable or
+    # useful) to genomic coordinates containing
+    # chrom/start/stop/strand. These new renamed
+    # identifers are also used to average the
+    # counts of multiple novel precursor miRs 
+    # pointing to the same mature miR.
+    {params.intersect} \\
+        <(paste - - < {output.mature} | sed 's/^>//g') \\
+        {output.h_bed} 0 3 \\
+        | awk -F '\\t' -v OFS='\\t' '{{ \\
+            if      ($8=="+") {{ split($1,arr,"_"); print $1, "novel_mir_"arr[1]"_"$4"_"$5"_forward_strand"   }} \\
+            else if ($8=="-") {{ split($1,arr,"_"); print $1, "novel_mir_"arr[1]"_"$4"_"$5"_reverse_strand"   }} \\
+            else              {{ split($1,arr,"_"); print $1, "novel_mir_"arr[1]"_"$4"_"$5"_undefined_strand" }} \\
+        }}' \\
+    > {output.mapping}
     """
 
 
@@ -296,7 +340,10 @@ rule mirdeep2_novel_p2_mature_expression:
     Data-processing step to calculate avergae expression across the same mature novel miRNA.
     The relationship between mature to precursor novel miRNA is 1:many. This step averages 
     the expression of multiple precursor miRNA pointing to the same mature miRNA to find
-    average novel mature miRNA expression.
+    average novel mature miRNA expression. Using the mapping file generated in the first 
+    pass, to rename mirdeep2's un-useful novel identifiers to something more human
+    readable. The new identifiers contain chrom/start/stop/strand information pulled
+    from the complementary novel mature BED file. 
     @Input:
         Known novel miRNA expression (scatter)
     @Ouput:
@@ -304,10 +351,13 @@ rule mirdeep2_novel_p2_mature_expression:
     """
     input:
         mirna   = join(workpath, "novel", "counts", "{sample}_novel_miRNA_expressed.tsv"),
+        mapping = join(workpath, "novel", "pass1", "cohort_novel_mirdeep_ids_to_genomic_coordinates.tsv"),
     output:
+        tmp_map = join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tmp"),
         avg_exp = join(workpath, "novel", "counts", "{sample}_novel_mature_miRNA_expression.tsv"),
     params:
         rname = "novel_matrexp",
+        intersect = join(workpath, "workflow", "scripts", "intersect.py"),
     container: config['images']['mir-seek'],
     threads: int(allocated("threads", "mirdeep2_novel_p2_mature_expression", cluster)),
     shell: """
@@ -318,11 +368,22 @@ rule mirdeep2_novel_p2_mature_expression:
         | sed '1 s/^#//g' \\
         | cut -f1,2 \\
     > {output.avg_exp}
+
+    # Intermediary step to rename
+    # mirdeep2's novel identifiers
+    # to genomic coordinates which
+    # contain chrom/start/stop/str
+    {params.intersect} \\
+        {input.mapping} \\
+        <(tail -n+2 {input.mirna}) \\
+        0 0 \\
+        | cut -f2- \\
+    > {output.tmp_map}
+
     # Find average expression due to
     # 1:many relationship between 
     # mature and precursor miRNA
-    tail -n+2 {input.mirna} \\
-        | cut -f1,2 \\
+    cut -f1,3 {output.tmp_map} \\
         | awk -F '\\t' -v OFS='\\t' '{{seen[$1]+=$2; count[$1]++}} END {{for (x in seen) print x, seen[x]/count[x]}}' \\
     >> {output.avg_exp}
     """
