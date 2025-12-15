@@ -64,16 +64,16 @@ If you use this software, please cite it as below:
   <summary><b><i>@BibText</i></b></summary>
  
 ```text
-@software{Kuhn_OpenOmics_mir-seek_2024,
-  author       = {Skyler, Kuhn and
-                  Gary, Zhang},
+@software{OpenOmics_mir-seek_13834238,
+  author       = {Kuhn, Skyler and
+                  Zhang, Yue (Gary)},
   title        = {OpenOmics/mir-seek: v0.3.0},
   month        = sep,
   year         = 2024,
   publisher    = {Zenodo},
   version      = {v0.3.0},
   doi          = {10.5281/zenodo.13834238},
-  url          = {https://doi.org/10.5281/zenodo.13834238}
+  url          = {https://doi.org/10.5281/zenodo.13834238},
 }
 ```
 
@@ -83,7 +83,7 @@ If you use this software, please cite it as below:
   <summary><b><i>@APA</i></b></summary>
 
 ```text
-Skyler, K., & Gary, Z. (2024). OpenOmics/mir-seek: v0.3.0 (v0.3.0). Zenodo. https://doi.org/10.5281/zenodo.13834238
+Kuhn, S., & Zhang, Y. (Gary) . (2024). OpenOmics/mir-seek: v0.3.0 (v0.3.0). Zenodo. https://doi.org/10.5281/zenodo.13834238
 ```
 
 </details>
